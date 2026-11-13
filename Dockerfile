@@ -6,17 +6,19 @@ RUN apt-get update && apt-get install -y git wget aria2 libgl1 libglib2.0-0 && r
 
 # 3. Clone ComfyUI and install requirements
 WORKDIR /workspace
-RUN git clone https://github.com
+RUN git clone https://github.com/Comfy-Org/ComfyUI
 WORKDIR /workspace/ComfyUI
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 4. Install ComfyUI-Manager, Impact-Pack, and Impact-Subpack
 WORKDIR /workspace/ComfyUI/custom_nodes
-RUN git clone https://github.com
-RUN git clone https://github.com && \
+# RUN git clone https://github.com
+# ComfyUI-Impact-Pack
+RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack && \
     pip install --no-cache-dir -r ComfyUI-Impact-Pack/requirements.txt && \
     python ComfyUI-Impact-Pack/install.py
-RUN git clone https://github.com && \
+# ComfyUI-Impact-Subpack
+RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Subpack && \
     pip install --no-cache-dir -r ComfyUI-Impact-Subpack/requirements.txt && \
     python ComfyUI-Impact-Subpack/install.py
 
