@@ -23,8 +23,8 @@ RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Subpack && \
     python ComfyUI-Impact-Subpack/install.py
 
 # 5. Download your models (replace with your model URLs)
-RUN wget -O /workspace/ComfyUI/models/checkpoints/illustrij17.safetensors \
-    "https://civitai.red/api/download/models/2001618?fileId=1898811"
+#RUN wget -O /workspace/ComfyUI/models/checkpoints/illustrij17.safetensors \
+#    "https://civitai.com/api/download/models/2001618?fileId=1898811"
 RUN wget -O /workspace/runpod-slim/ComfyUI/models/upscale_models/4x_foolhardy_Remacri.pth \
     "https://huggingface.co/FacehugmanIII/4x_foolhardy_Remacri/resolve/main/4x_foolhardy_Remacri.pth"
 
