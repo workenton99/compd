@@ -31,4 +31,6 @@ RUN wget -O /workspace/ComfyUI/models/upscale_models/4x_foolhardy_Remacri.pth \
 # 6. Expose ComfyUI port and start automatically
 EXPOSE 8188
 WORKDIR /workspace/ComfyUI
-CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188"]
+#CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188"]
+CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--enable-cors-header", "*"]
+
