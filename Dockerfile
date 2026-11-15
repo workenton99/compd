@@ -27,9 +27,9 @@ RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Subpack && \
 #    "https://civitai.com/api/download/models/2001618?fileId=1898811"
 RUN wget -O /workspace/ComfyUI/models/diffusion_models/anima-aesthetic-v1.1.safetensors \
     "https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/diffusion_models/anima-aesthetic-v1.1.safetensors"
-RUN wget -O /workspace/ComfyUI/models/upscale_models/vae/qwen_image_vae.safetensors \
+RUN wget -O /workspace/ComfyUI/models/vae/qwen_image_vae.safetensors \
     "https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/vae/qwen_image_vae.safetensors"
-RUN wget -O /workspace/ComfyUI/models/upscale_models/text_encoders/qwen_3_06b_base.safetensors \
+RUN wget -O /workspace/ComfyUI/models/text_encoders/qwen_3_06b_base.safetensors \
     "https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/text_encoders/qwen_3_06b_base.safetensors"
 RUN wget -O /workspace/ComfyUI/models/upscale_models/4x_foolhardy_Remacri.pth \
     "https://huggingface.co/FacehugmanIII/4x_foolhardy_Remacri/resolve/main/4x_foolhardy_Remacri.pth"
