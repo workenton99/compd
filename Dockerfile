@@ -1,42 +1,39 @@
-# 1. Start from RunPod's official PyTorch + CUDA base image
-FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
 
-# 2. Install system tools and graphics libraries
-RUN apt-get update && apt-get install -y git wget aria2 libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    OLLAMA_HOST=0.0.0.0:11434 \
+    OLLAMA_MODELS=/workspace/ollama/models \
+    DATA_DIR=/workspace/openwebui \
+    PORT=8080
 
-# 3. Clone ComfyUI and install requirements
-WORKDIR /workspace
-RUN git clone https://github.com/Comfy-Org/ComfyUI
-WORKDIR /workspace/ComfyUI
-RUN pip install --no-cache-dir -r requirements.txt
+# 1. Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 python3.11-venv python3-pip \
+    git curl wget ca-certificates supervisor \
+    ffmpeg libgl1 libglib2.0-0 zstd jq \
+    && rm -rf /var/lib/apt/lists/*
 
-# 4. Install ComfyUI-Manager, Impact-Pack, and Impact-Subpack
-WORKDIR /workspace/ComfyUI/custom_nodes
-# RUN git clone https://github.com
-# ComfyUI-Impact-Pack
-RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack && \
-    pip install --no-cache-dir -r ComfyUI-Impact-Pack/requirements.txt && \
-    python ComfyUI-Impact-Pack/install.py
-# ComfyUI-Impact-Subpack
-RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Subpack && \
-    pip install --no-cache-dir -r ComfyUI-Impact-Subpack/requirements.txt && \
-    python ComfyUI-Impact-Subpack/install.py
+# 2. Install Ollama
+RUN curl -fsSL https://ollama.com | sh
 
-# 5. Download your models (replace with your model URLs)
-#RUN wget -O /workspace/ComfyUI/models/checkpoints/illustrij17.safetensors \
-#    "https://civitai.com/api/download/models/2001618?fileId=1898811"
-RUN wget -O /workspace/ComfyUI/models/diffusion_models/anima-aesthetic-v1.1.safetensors \
-    "https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/diffusion_models/anima-aesthetic-v1.1.safetensors"
-RUN wget -O /workspace/ComfyUI/models/vae/qwen_image_vae.safetensors \
-    "https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/vae/qwen_image_vae.safetensors"
-RUN wget -O /workspace/ComfyUI/models/text_encoders/qwen_3_06b_base.safetensors \
-    "https://huggingface.co/circlestone-labs/Anima/resolve/main/split_files/text_encoders/qwen_3_06b_base.safetensors"
-RUN wget -O /workspace/ComfyUI/models/upscale_models/4x_foolhardy_Remacri.pth \
-    "https://huggingface.co/FacehugmanIII/4x_foolhardy_Remacri/resolve/main/4x_foolhardy_Remacri.pth"
+# 3. Install ComfyUI in an isolated virtual environment
+RUN git clone --depth 1 https://github.com /opt/comfyui && \
+    python3.11 -m venv /opt/comfyui/venv && \
+    /opt/comfyui/venv/bin/pip install --no-cache-dir --upgrade pip && \
+    /opt/comfyui/venv/bin/pip install --no-cache-dir torch torchvision torchaudio --index-url https://pytorch.org && \
+    /opt/comfyui/venv/bin/pip install --no-cache-dir -r /opt/comfyui/requirements.txt
 
-# 6. Expose ComfyUI port and start automatically
-EXPOSE 8188
-WORKDIR /workspace/ComfyUI
-#CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188"]
-CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--enable-cors-header", "*"]
+# 4. Install Open WebUI in an isolated virtual environment
+RUN python3.11 -m venv /opt/openwebui/venv && \
+    /opt/openwebui/venv/bin/pip install --no-cache-dir --upgrade pip && \
+    /opt/openwebui/venv/bin/pip install --no-cache-dir open-webui
 
+# 5. Copy process manager and boot script
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 8080 8188 11434
+
+ENTRYPOINT ["/entrypoint.sh"]
